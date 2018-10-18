@@ -53,16 +53,21 @@ def process_match(match):
     #check result of the match
     match_result = Match_Result(match)
     match_result.getResult()
+    previous_points = 0
+    new_points = 0
     # import pudb; pudb.set_trace()
     if team_exists(db,current_standings,match_result.team_a):
-        #add the points onto the existing points
-        print match_result.team_a
+        previous_points = db.search(current_standings.name == match_result.team_a)[0]['points']
+        new_points = previous_points + match_result.points_a
+        db.update({'points': new_points}, current_standings.name == match_result.team_a) 
     else:
         db.insert({'name': match_result.team_a, 'points': match_result.points_a})
     #TODO repeating oneself...
     if team_exists(db,current_standings,match_result.team_b):
         #add the points onto the existing points
-        print match_result.team_b
+        previous_points = db.search(current_standings.name == match_result.team_b)[0]['points']
+        new_points = previous_points + match_result.points_b
+        db.update({'points': new_points}, current_standings.name == match_result.team_b)
     else:
         db.insert({'name': match_result.team_b, 'points': match_result.points_b})
     
@@ -78,7 +83,14 @@ def process_file(file_path):
     file_of_matches.close()
 
 def display_log():
-    print ("Log")
+    db = TinyDB('soccer_league.json')
+    log = db.all()
+    sort_on = "points"
+    decorated = [(dict_[sort_on], dict_) for dict_ in log]
+    decorated.sort()
+    for idx,item in enumerate(reversed(decorated)):
+        log_position = idx + 1
+        print (str(log_position) + '. ' + item[1]['name'] + ', ' + str(item[1]['points']))
 
 @click.command()
 @click.argument("match",required=False)#, help="Input a single match of the format <Team1Name> <Team1's_score>, <Team2Name> <Team2's_score> (eg Snakes 1, Lions 2")
