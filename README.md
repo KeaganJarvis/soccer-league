@@ -1,5 +1,5 @@
 # soccer-league
-A CLI to manage a soccer league that takes in soccer matches as input, both file and stdin. 
+A CLI to display and manage a soccer league that takes in soccer matches as input from a file. 
 
 Usage: use -f or --file option to pass a file in that contains matches in the following format:
 
